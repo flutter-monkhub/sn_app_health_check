@@ -17,7 +17,8 @@ function isNonEmpty(value) {
 
 /**
  * Validates that a string looks like an email address:
- * must contain '@' followed by at least one '.'.
+ * must have at least one non-whitespace character before '@',
+ * and a domain with at least one '.' and a non-empty TLD after it.
  * @param {string} value
  * @returns {boolean}
  */
@@ -25,8 +26,13 @@ function isValidEmail(value) {
   if (!isNonEmpty(value)) return false;
   const atIndex = value.indexOf("@");
   if (atIndex < 1) return false;
+  const local = value.slice(0, atIndex).trim();
+  if (local.length === 0) return false;
   const domain = value.slice(atIndex + 1);
-  return domain.includes(".");
+  const dotIndex = domain.indexOf(".");
+  if (dotIndex < 1) return false;
+  const tld = domain.slice(dotIndex + 1).trim();
+  return tld.length > 0;
 }
 
 /**
@@ -76,25 +82,33 @@ function validateConfig() {
     // Fall back to default
     monitorUrls = [DEFAULT_MONITOR_URL];
   } else {
-    const parsed = rawUrls
-      .split(",")
-      .map((u) => u.trim())
-      .filter((u) => u.length > 0);
+    // Split and trim; drop empty segments (e.g. trailing commas or ",,")
+    const allSegments = rawUrls.split(",").map((u) => u.trim());
+    const parsed = allSegments.filter((u) => u.length > 0);
 
-    if (parsed.length > MAX_MONITOR_URLS) {
+    // If the raw value was provided but contains only empty segments (e.g. ",,,"),
+    // treat each non-empty segment as invalid — but if truly all empty, flag it.
+    if (parsed.length === 0) {
       errors.push(
-        `MONITOR_URLS exceeds maximum of ${MAX_MONITOR_URLS} URLs (got ${parsed.length})`
+        "MONITOR_URLS is provided but contains no valid URL entries"
       );
-    }
+      monitorUrls = [DEFAULT_MONITOR_URL];
+    } else {
+      if (parsed.length > MAX_MONITOR_URLS) {
+        errors.push(
+          `MONITOR_URLS exceeds maximum of ${MAX_MONITOR_URLS} URLs (got ${parsed.length})`
+        );
+      }
 
-    const invalidUrls = parsed.filter((u) => !isValidUrl(u));
-    if (invalidUrls.length > 0) {
-      errors.push(
-        `MONITOR_URLS contains malformed URL(s): ${invalidUrls.map((u) => JSON.stringify(u)).join(", ")}`
-      );
-    }
+      const invalidUrls = parsed.filter((u) => !isValidUrl(u));
+      if (invalidUrls.length > 0) {
+        errors.push(
+          `MONITOR_URLS contains malformed URL(s): ${invalidUrls.map((u) => JSON.stringify(u)).join(", ")}`
+        );
+      }
 
-    monitorUrls = parsed;
+      monitorUrls = parsed;
+    }
   }
 
   if (errors.length > 0) {

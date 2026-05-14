@@ -1,0 +1,23 @@
+# Dependencies
+functions/node_modules/
+
+# Environment variables (never commit real secrets)
+functions/.env
+.env
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+
+# Kiro internal
+.kiro/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

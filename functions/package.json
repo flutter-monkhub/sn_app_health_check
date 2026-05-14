@@ -1,0 +1,25 @@
+{
+  "name": "firebase-api-monitor-functions",
+  "description": "Firebase Cloud Functions for API health monitoring",
+  "version": "1.0.0",
+  "main": "index.js",
+  "engines": {
+    "node": "18"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "axios": "1.7.2",
+    "firebase-admin": "12.3.0",
+    "firebase-functions": "5.0.1",
+    "resend": "3.2.0"
+  },
+  "devDependencies": {
+    "fast-check": "3.21.0",
+    "jest": "29.7.0"
+  },
+  "private": true
+}

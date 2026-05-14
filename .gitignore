@@ -1,5 +1,5 @@
 # Dependencies
-functions/node_modules/
+node_modules/
 
 # Environment variables (never commit real secrets)
 functions/.env

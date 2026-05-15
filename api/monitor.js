@@ -9,7 +9,10 @@ async function checkApis() {
 
   for (const url of APIS) {
     try {
-      const res = await axios.get(url, { timeout: 5000 });
+      const res = await axios.post(url, {}, {
+        headers: { "Content-Type": "application/json" },
+        timeout: 5000,
+      });
 
       if (res.status >= 200 && res.status < 300) {
         console.log(`OK: ${url}`);

@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/monitor.js": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs24.x"
     }
   },
   "crons": [

@@ -1,14 +1,17 @@
 const axios = require("axios");
 
 const APIS = [
-  "https://apineuronv2.monkhub.com/user/login",
+  "https://apineuronv2.monkhub.com/user/getStreakAndStoryBlogs",
 ];
 
 async function checkApis() {
   for (const url of APIS) {
     try {
       const res = await axios.post(url, {}, {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Custom-Token": process.env.API_TOKEN,
+        },
         timeout: 5000,
       });
 

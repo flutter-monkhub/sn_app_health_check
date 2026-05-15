@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/monitor.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "crons": [
     {
       "path": "/api/monitor",

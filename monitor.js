@@ -1,5 +1,4 @@
 const axios = require("axios");
-const { Resend } = require("resend");
 
 const APIS = [
   "https://apineuronv2.monkhub.com/user/login",
@@ -24,33 +23,47 @@ async function checkApis() {
 }
 
 async function sendAlert(url, error) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.ALERT_EMAIL_TO;
-  const from = process.env.ALERT_EMAIL_FROM;
+  const serviceId  = process.env.EMAILJS_SERVICE_ID;
+  const templateId = process.env.EMAILJS_TEMPLATE_ID;
+  const publicKey  = process.env.EMAILJS_PUBLIC_KEY;
 
-  if (!apiKey || !to || !from) {
-    console.error("Missing email env vars: RESEND_API_KEY, ALERT_EMAIL_TO, ALERT_EMAIL_FROM");
+  if (!serviceId || !templateId || !publicKey) {
+    console.error(
+      "Missing EmailJS env vars: EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY"
+    );
     return;
   }
 
-  const resend = new Resend(apiKey);
   const timestamp = new Date().toISOString();
 
   try {
-    const { error: sendError } = await resend.emails.send({
-      from,
-      to,
-      subject: `[ALERT] API endpoint down: ${url}`,
-      text: `Endpoint: ${url}\nStatus: UNHEALTHY\nReason: ${error}\nDetected at: ${timestamp}`,
-    });
+    const response = await axios.post(
+      "https://api.emailjs.com/api/v1.0/email/send",
+      {
+        service_id:  serviceId,
+        template_id: templateId,
+        user_id:     publicKey,
+        template_params: {
+          endpoint_url: url,
+          error_reason: error,
+          detected_at:  timestamp,
+          status:       "UNHEALTHY",
+        },
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+        timeout: 10000,
+      }
+    );
 
-    if (sendError) {
-      console.error("Failed to send alert email:", sendError);
-    } else {
+    if (response.status === 200) {
       console.log(`Alert email sent for ${url}`);
+    } else {
+      console.error(`EmailJS returned unexpected status ${response.status} for ${url}`);
     }
   } catch (err) {
-    console.error("Error sending alert email:", err.message);
+    const detail = err.response ? JSON.stringify(err.response.data) : err.message;
+    console.error(`Failed to send alert email for ${url}:`, detail);
   }
 }
 

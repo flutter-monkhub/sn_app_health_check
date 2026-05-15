@@ -7,10 +7,10 @@ const APIS = [
 async function checkApis() {
   for (const url of APIS) {
     try {
-      const res = await axios.post(url, {}, {
+      const res = await axios.get(url, {
         headers: {
-          "Content-Type": "application/json",
           "X-Custom-Token": process.env.API_TOKEN,
+          "Cookie": process.env.API_COOKIE || "",
         },
         timeout: 5000,
       });

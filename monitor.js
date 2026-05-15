@@ -10,7 +10,6 @@ async function checkApis() {
       const res = await axios.get(url, {
         headers: {
           "X-Custom-Token": process.env.API_TOKEN,
-          "Cookie": process.env.API_COOKIE || "",
         },
         timeout: 5000,
       });
